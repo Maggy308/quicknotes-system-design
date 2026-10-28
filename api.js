@@ -38,7 +38,7 @@ async function request(url, options = {}) {
 async function getNotes() {
   try {
     setStatus("Loading notes…", "loading");
-    loadButton.disabled = true;
+    setActionButtonsDisabled(true);
     notesList.replaceChildren();
 
     const data = await request(`${API_URL}?_limit=${NOTES_TO_LOAD}`);
@@ -53,14 +53,13 @@ async function getNotes() {
     setStatus("Could not load notes. Check your connection and try again.", "error");
     console.error("GET notes failed:", error);
   } finally {
-    loadButton.disabled = false;
+    setActionButtonsDisabled(false);
   }
 }
 
 async function createNote(title, body) {
   try {
-    submitButton.disabled = true;
-    loadButton.disabled = true;
+    setActionButtonsDisabled(true);
     setStatus("Creating note…", "loading");
 
     const created = await request(API_URL, {
@@ -83,16 +82,14 @@ async function createNote(title, body) {
     setStatus("Could not create the note. Please try again.", "error");
     console.error("POST note failed:", error);
   } finally {
-    submitButton.disabled = false;
-    loadButton.disabled = false;
+    setActionButtonsDisabled(false);
   }
 }
 
 async function deleteNote(id, button) {
   try {
+    setActionButtonsDisabled(true);
     button.disabled = true;
-    submitButton.disabled = true;
-    loadButton.disabled = true;
     setStatus("Deleting note…", "loading");
 
     // Negative IDs represent notes added in this browser session only.
@@ -108,9 +105,14 @@ async function deleteNote(id, button) {
     setStatus("Could not delete the note. Please try again.", "error");
     console.error("DELETE note failed:", error);
   } finally {
-    submitButton.disabled = false;
-    loadButton.disabled = false;
+    setActionButtonsDisabled(false);
   }
+}
+
+function setActionButtonsDisabled(disabled) {
+  document.querySelectorAll("button").forEach((button) => {
+    button.disabled = disabled;
+  });
 }
 
 function renderNotes(list) {
